@@ -181,8 +181,10 @@ class BackupRoundTripTest {
             ZipOutputStream(FileOutputStream(futureZip)).use { zos ->
                 zos.putNextEntry(ZipEntry("backup-manifest.json"))
                 zos.write(
-                    """{"schemaVersion":99,"createdAtEpochMs":1,"bookCount":0,"chapterCount":0,"extensionCount":0,"includesChapterContent":true}"""
-                        .toByteArray(),
+                    (
+                        """{"schemaVersion":99,"createdAtEpochMs":1,"bookCount":0,""" +
+                            """"chapterCount":0,"extensionCount":0,"includesChapterContent":true}"""
+                    ).toByteArray(),
                 )
                 zos.closeEntry()
                 zos.putNextEntry(ZipEntry("db-snapshot.json"))

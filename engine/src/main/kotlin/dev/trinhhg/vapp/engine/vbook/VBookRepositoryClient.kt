@@ -92,8 +92,9 @@ class VBookRepositoryClient(
     ): List<VBookExtensionItem> =
         try {
             val root =
-                json.parseToJsonElement(rawJson) as? JsonObject
-                    ?: throw IllegalArgumentException("Root is not a JSON object")
+                requireNotNull(json.parseToJsonElement(rawJson) as? JsonObject) {
+                    "Root is not a JSON object"
+                }
             val dataArray = root["data"] as? JsonArray ?: return emptyList()
             json.decodeFromJsonElement<List<VBookExtensionItem>>(dataArray)
         } catch (e: Exception) {

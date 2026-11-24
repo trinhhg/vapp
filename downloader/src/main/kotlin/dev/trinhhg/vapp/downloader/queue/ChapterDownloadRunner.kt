@@ -102,66 +102,21 @@ class ChapterDownloadRunner(
                     .map { chapter ->
                         async {
                             semaphore.withPermit {
-                                if (circuitTripped.get() || abortedByPauseOrCancel.get()) return@withPermit
-                                val freshTask = taskDao.getById(taskId)
-                                if (freshTask == null ||
-                                    freshTask.status == DownloadTaskStatus.PAUSED ||
-                                    freshTask.status == DownloadTaskStatus.CANCELLED
-                                ) {
-                                    abortedByPauseOrCancel.set(true)
-                                    return@withPermit
-                                }
-
-                                if (config.requestDelayMs > 0L) {
-                                    delay(config.requestDelayMs)
-                                }
-
-                                val result =
-                                    downloadSingleChapterWithRetry(
-                                        bookId = book.id,
-                                        extensionId = extId,
-                                        chapter = chapter,
-                                        config = config,
-                                        shouldAbort = {
-                                            circuitTripped.get() || abortedByPauseOrCancel.get() || isTaskInterrupted(taskId)
-                                        },
-                                    )
-
-                                when (result) {
-                                    is SingleResult.Success -> {
-                                        consecutiveErrors.set(0)
-                                        val done = completedCounter.incrementAndGet()
-                                        val fail = failedCounter.get()
-                                        taskDao.updateProgress(taskId, DownloadTaskStatus.RUNNING, done, fail, lastErrorMsg.get(), clock())
-                                        onProgress(done, fail, total, chapter.title)
-                                    }
-
-                                    is SingleResult.Interrupted -> {
-                                        abortedByPauseOrCancel.set(true)
-                                    }
-
-                                    is SingleResult.Failed -> {
-                                        val errCount = consecutiveErrors.incrementAndGet()
-                                        val fail = failedCounter.incrementAndGet()
-                                        var errMessage = result.reason
-                                        if (errCount >= config.circuitBreakerThreshold) {
-                                            circuitTripped.set(true)
-                                            errMessage =
-                                                "Circuit breaker tripped after $errCount consecutive errors: ${result.reason}"
-                                            log.warn(errMessage, tag = TAG)
-                                        }
-                                        lastErrorMsg.set(errMessage)
-                                        taskDao.updateProgress(
-                                            taskId,
-                                            DownloadTaskStatus.RUNNING,
-                                            completedCounter.get(),
-                                            fail,
-                                            errMessage,
-                                            clock(),
-                                        )
-                                        onProgress(completedCounter.get(), fail, total, chapter.title)
-                                    }
-                                }
+                                runPermitSlot(
+                                    taskId = taskId,
+                                    bookId = book.id,
+                                    extensionId = extId,
+                                    chapter = chapter,
+                                    config = config,
+                                    total = total,
+                                    consecutiveErrors = consecutiveErrors,
+                                    circuitTripped = circuitTripped,
+                                    abortedByPauseOrCancel = abortedByPauseOrCancel,
+                                    completedCounter = completedCounter,
+                                    failedCounter = failedCounter,
+                                    lastErrorMsg = lastErrorMsg,
+                                    onProgress = onProgress,
+                                )
                             }
                         }
                     }.awaitAll()
@@ -200,6 +155,83 @@ class ChapterDownloadRunner(
         }
 
         return TaskRunOutcome(finalStatus, completedCounter.get(), failedCounter.get(), lastErrorMsg.get())
+    }
+
+    private suspend fun runPermitSlot(
+        taskId: String,
+        bookId: String,
+        extensionId: String,
+        chapter: ChapterEntity,
+        config: DownloaderConfig,
+        total: Int,
+        consecutiveErrors: AtomicInteger,
+        circuitTripped: AtomicBoolean,
+        abortedByPauseOrCancel: AtomicBoolean,
+        completedCounter: AtomicInteger,
+        failedCounter: AtomicInteger,
+        lastErrorMsg: AtomicReference<String?>,
+        onProgress: suspend (completed: Int, failed: Int, total: Int, currentTitle: String?) -> Unit,
+    ) {
+        if (circuitTripped.get() || abortedByPauseOrCancel.get()) return
+        val freshTask = taskDao.getById(taskId)
+        val pausedOrGone =
+            freshTask == null ||
+                freshTask.status == DownloadTaskStatus.PAUSED ||
+                freshTask.status == DownloadTaskStatus.CANCELLED
+        if (pausedOrGone) {
+            abortedByPauseOrCancel.set(true)
+            return
+        }
+
+        if (config.requestDelayMs > 0L) {
+            delay(config.requestDelayMs)
+        }
+
+        val result =
+            downloadSingleChapterWithRetry(
+                bookId = bookId,
+                extensionId = extensionId,
+                chapter = chapter,
+                config = config,
+                shouldAbort = {
+                    circuitTripped.get() || abortedByPauseOrCancel.get() || isTaskInterrupted(taskId)
+                },
+            )
+
+        when (result) {
+            is SingleResult.Success -> {
+                consecutiveErrors.set(0)
+                val done = completedCounter.incrementAndGet()
+                val fail = failedCounter.get()
+                taskDao.updateProgress(taskId, DownloadTaskStatus.RUNNING, done, fail, lastErrorMsg.get(), clock())
+                onProgress(done, fail, total, chapter.title)
+            }
+
+            is SingleResult.Interrupted -> {
+                abortedByPauseOrCancel.set(true)
+            }
+
+            is SingleResult.Failed -> {
+                val errCount = consecutiveErrors.incrementAndGet()
+                val fail = failedCounter.incrementAndGet()
+                var errMessage = result.reason
+                if (errCount >= config.circuitBreakerThreshold) {
+                    circuitTripped.set(true)
+                    errMessage = "Circuit breaker tripped after $errCount consecutive errors: ${result.reason}"
+                    log.warn(errMessage, tag = TAG)
+                }
+                lastErrorMsg.set(errMessage)
+                taskDao.updateProgress(
+                    taskId,
+                    DownloadTaskStatus.RUNNING,
+                    completedCounter.get(),
+                    fail,
+                    errMessage,
+                    clock(),
+                )
+                onProgress(completedCounter.get(), fail, total, chapter.title)
+            }
+        }
     }
 
     private suspend fun isTaskInterrupted(taskId: String): Boolean {

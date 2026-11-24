@@ -75,12 +75,16 @@ import okio.Path.Companion.toOkioPath
 import org.koin.compose.koinInject
 import java.io.File
 
+private const val ENCRYPTED_UNSUPPORTED_MSG =
+    "Nguồn này dùng mã hóa độc quyền của VBook nên vapp không hỗ trợ; " +
+        "hãy dùng nguồn mở hoặc kho cộng đồng không mã hóa."
+
 internal fun formatEngineErrorForUser(err: Throwable): String {
     val eng = err as? EngineException
     if (eng?.code == EngineErrorCode.ENCRYPTED_UNSUPPORTED ||
         err.message?.contains("ENCRYPTED_UNSUPPORTED", ignoreCase = true) == true
     ) {
-        return "Nguồn này dùng mã hóa độc quyền của VBook nên vapp không hỗ trợ; hãy dùng nguồn mở hoặc kho cộng đồng không mã hóa."
+        return ENCRYPTED_UNSUPPORTED_MSG
     }
     return eng?.let { "[${it.code}] ${it.message}" } ?: (err.message ?: "Đã xảy ra lỗi không xác định.")
 }
@@ -326,7 +330,7 @@ fun ExtensionManagerScreen(
                                     Text(item.source.orEmpty(), style = MaterialTheme.typography.bodySmall)
                                     if (isEncrypted) {
                                         Text(
-                                            "Nguồn này dùng mã hóa độc quyền của VBook nên vapp không hỗ trợ; hãy dùng nguồn mở hoặc kho cộng đồng không mã hóa.",
+                                            ENCRYPTED_UNSUPPORTED_MSG,
                                             color = MaterialTheme.colorScheme.error,
                                             style = MaterialTheme.typography.labelSmall,
                                         )

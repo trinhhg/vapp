@@ -108,7 +108,12 @@ fun SettingsScreen(
             )
         }
         item {
-            SettingsNavCard("Engine Debug Logs", "Kiểm tra nhật ký Rhino JS / HTTP / WebView", Icons.Default.BugReport, onOpenDebugLogs)
+            SettingsNavCard(
+                "Engine Debug Logs",
+                "Kiểm tra nhật ký Rhino JS / HTTP / WebView",
+                Icons.Default.BugReport,
+                onOpenDebugLogs,
+            )
         }
 
         item {

@@ -92,7 +92,10 @@ class VBookExtensionCompatTest {
                                 MockResponse().setBody(
                                     """
                                     <div class="list">
-                                      <div class="item"><a href="/truyen/pham-nhan-tu-tien">Phàm Nhân Tu Tiên</a><img src="/cover.jpg"/></div>
+                                      <div class="item">
+                                        <a href="/truyen/pham-nhan-tu-tien">Phàm Nhân Tu Tiên</a>
+                                        <img src="/cover.jpg"/>
+                                      </div>
                                     </div>
                                     """.trimIndent(),
                                 )

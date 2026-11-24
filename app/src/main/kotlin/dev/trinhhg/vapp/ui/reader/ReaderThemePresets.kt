@@ -110,8 +110,8 @@ object ReaderFontRegistry {
                     val target = File(fontsDir(context), fileName)
                     if (target.exists()) Typeface.createFromFile(target) else null
                 } else {
-                    val assetPath = bundledMap[fontKey]?.second ?: bundledMap["literata"]!!.second
-                    Typeface.createFromAsset(context.assets, assetPath)
+                    val assetPath = bundledMap[fontKey]?.second ?: bundledMap["literata"]?.second
+                    if (assetPath != null) Typeface.createFromAsset(context.assets, assetPath) else null
                 }
             }.getOrNull()
         val family = if (typeface != null) FontFamily(typeface) else FontFamily.Serif

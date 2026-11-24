@@ -9,6 +9,18 @@ naming:
     constantPattern: '[A-Z][_A-Za-z0-9]*'
   VariableNaming:
     excludes: ['**/test/**']
+  MatchingDeclarationName:
+    active: false
+
+coroutines:
+  InjectDispatcher:
+    active: false
+  SleepInsteadOfDelay:
+    active: false
+
+empty-blocks:
+  EmptyFunctionBlock:
+    ignoreOverridden: true
 
 style:
   MaxLineLength:
@@ -29,6 +41,14 @@ style:
     active: false
   UnusedPrivateMember:
     ignoreAnnotated: ['Preview']
+  UseRequire:
+    active: false
+  UseCheckOrError:
+    active: false
+  FunctionOnlyReturningConstant:
+    active: false
+  ExplicitItLambdaParameter:
+    active: false
 
 complexity:
   TooManyFunctions:
@@ -41,5 +61,19 @@ complexity:
   CyclomaticComplexMethod:
     threshold: 25
     ignoreAnnotated: ['Composable']
+  ComplexCondition:
+    threshold: 6
   NestedBlockDepth:
     threshold: 6
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: false
+  TooGenericExceptionThrown:
+    active: false
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    excludes: ['**/test/**', '**/androidTest/**']

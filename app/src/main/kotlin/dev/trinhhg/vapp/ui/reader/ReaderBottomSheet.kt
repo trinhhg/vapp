@@ -381,7 +381,7 @@ private fun IndentSliderRow(
     ) {
         Text("Thụt lề", style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.width(4.dp))
-        Text("%.1f".format(indentEm), style = MaterialTheme.typography.labelMedium)
+        Text("%.1f".format(java.util.Locale.US, indentEm), style = MaterialTheme.typography.labelMedium)
         Slider(
             value = indentEm,
             onValueChange = onChange,

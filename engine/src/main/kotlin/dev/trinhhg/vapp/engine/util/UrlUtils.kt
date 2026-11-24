@@ -45,7 +45,7 @@ fun sha256Hex(bytes: ByteArray): String =
     MessageDigest
         .getInstance("SHA-256")
         .digest(bytes)
-        .joinToString("") { "%02x".format(it) }
+        .joinToString("") { "%02x".format(java.util.Locale.US, it) }
 
 fun String.sha256Hex(): String = sha256Hex(encodeToByteArray())
 

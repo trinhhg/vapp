@@ -29,6 +29,14 @@ jobs:
       - name: Lint & Static Analysis
         run: ./gradlew spotlessCheck detekt
 
+      - name: Upload Detekt Reports on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-reports
+          path: '*/build/reports/detekt/'
+          if-no-files-found: ignore
+
       - name: Run Unit Tests
         run: ./gradlew :engine:test :epub-exporter:test :downloader:testDebugUnitTest :tts-player:testDebugUnitTest :app:testDebugUnitTest
 

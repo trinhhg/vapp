@@ -235,7 +235,7 @@ fun AudiobookPlayerScreen(
                     state.sleepTimerRemainingMinutes != null -> "${state.sleepTimerRemainingMinutes}p"
                     else -> "Hẹn giờ"
                 },
-            speedLabel = "%.2fx".format(state.speechRate),
+            speedLabel = "%.2fx".format(java.util.Locale.US, state.speechRate),
             onToc = { activeSheet = PlayerSheetType.TOC },
             onSleep = { activeSheet = PlayerSheetType.SLEEP },
             onSpeed = { activeSheet = PlayerSheetType.SPEED },
@@ -583,18 +583,24 @@ private fun PlayerSpeedPitchSheet(
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Tốc độ đọc: ${"%.2fx".format(speed)}", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Tốc độ đọc: ${"%.2fx".format(java.util.Locale.US, speed)}",
+                style = MaterialTheme.typography.titleMedium,
+            )
             Slider(value = speed, onValueChange = onSpeedChange, valueRange = 0.5f..2.5f)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(1.0f, 1.25f, 1.30f, 1.5f, 2.0f).forEach { preset ->
                     FilterChip(
                         selected = kotlin.math.abs(speed - preset) < 0.03f,
                         onClick = { onSpeedChange(preset) },
-                        label = { Text("${"%.2fx".format(preset)}") },
+                        label = { Text("%.2fx".format(java.util.Locale.US, preset)) },
                     )
                 }
             }
-            Text("Cao độ giọng (Pitch): ${"%.2f".format(pitch)}", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Cao độ giọng (Pitch): ${"%.2f".format(java.util.Locale.US, pitch)}",
+                style = MaterialTheme.typography.titleMedium,
+            )
             Slider(value = pitch, onValueChange = onPitchChange, valueRange = 0.5f..2.0f)
         }
     }
@@ -647,7 +653,10 @@ private fun PlayerVoiceSheet(
             Text("Giọng đọc hệ thống Android (${voices.size})", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
             if (voices.isEmpty()) {
-                Text("Đang tải hoặc thiết bị chưa cài đặt dữ liệu giọng TTS.", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "Đang tải hoặc thiết bị chưa cài đặt dữ liệu giọng TTS.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
             } else {
                 LazyColumn(modifier = Modifier.height(320.dp)) {
                     items(voices) { v ->
