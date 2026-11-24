@@ -1,0 +1,89 @@
+name: Android CI
+
+on:
+  push:
+    branches: [main, master, '001-*']
+    tags: ['v*']
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Lint & Static Analysis
+        run: ./gradlew spotlessCheck detekt
+
+      - name: Run Unit Tests
+        run: ./gradlew :engine:test :epub-exporter:test :downloader:testDebugUnitTest :tts-player:testDebugUnitTest :app:testDebugUnitTest
+
+  build-debug-apk:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug
+
+      - name: Prepare APK Artifact
+        run: |
+          mkdir -p dist
+          SHORT_SHA="${GITHUB_SHA::7}"
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/vapp-debug-${SHORT_SHA}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vapp-debug-apk
+          path: dist/vapp-debug-*.apk
+          retention-days: 7
+
+  build-release-apk:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Release APK
+        run: ./gradlew :app:assembleRelease
+
+      - name: Package Release APK
+        run: |
+          mkdir -p dist
+          TAG_NAME="${GITHUB_REF_NAME}"
+          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+            cp app/build/outputs/apk/release/app-release.apk "dist/vapp-${TAG_NAME}.apk"
+          else
+            cp app/build/outputs/apk/release/app-release-unsigned.apk "dist/vapp-${TAG_NAME}-unsigned.apk"
+          fi
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/*.apk

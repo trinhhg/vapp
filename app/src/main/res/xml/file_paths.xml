@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <files-path name="vapp_exports" path="vapp/exports/" />
+    <external-files-path name="vapp_ext_downloads" path="Download/" />
+    <cache-path name="vapp_cache" path="." />
+</paths>

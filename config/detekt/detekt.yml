@@ -1,0 +1,45 @@
+build:
+  maxIssues: 0
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+    excludes: ['**/test/**', '**/androidTest/**']
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][_A-Za-z0-9]*'
+  VariableNaming:
+    excludes: ['**/test/**']
+
+style:
+  MaxLineLength:
+    maxLineLength: 140
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: false
+  WildcardImport:
+    active: false
+  ForbiddenComment:
+    active: false
+  LoopWithTooManyJumpStatements:
+    active: false
+  ThrowsCount:
+    active: false
+  DestructuringDeclarationWithTooManyEntries:
+    active: false
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
+
+complexity:
+  TooManyFunctions:
+    active: false
+  LongParameterList:
+    active: false
+  LongMethod:
+    threshold: 160
+    ignoreAnnotated: ['Composable']
+  CyclomaticComplexMethod:
+    threshold: 25
+    ignoreAnnotated: ['Composable']
+  NestedBlockDepth:
+    threshold: 6

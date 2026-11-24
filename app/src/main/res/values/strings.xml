@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_bookshelf">Tủ sách</string>
+    <string name="nav_discover">Khám phá</string>
+    <string name="nav_downloads">Tải xuống</string>
+    <string name="nav_settings">Cài đặt</string>
+    <string name="action_search">Tìm kiếm</string>
+    <string name="action_pause">Tạm dừng</string>
+    <string name="action_resume">Tiếp tục</string>
+    <string name="action_cancel">Hủy</string>
+    <string name="action_retry_failed">Thử lại chương lỗi</string>
+    <string name="action_export_epub">Xuất EPUB / TXT</string>
+    <string name="dl_notification_channel_name">Tiến trình tải truyện</string>
+    <string name="dl_notification_channel_desc">Thông báo trạng thái tải chương truyện chạy nền</string>
+    <string name="dl_notification_title">Đang tải truyện</string>
+    <string name="dl_notification_paused">Đã tạm dừng tải</string>
+    <string name="dl_notification_completed">Tải hoàn tất</string>
+</resources>

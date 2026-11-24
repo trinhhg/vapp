@@ -1,0 +1,25 @@
+# Gradle / Build
+.gradle/
+.kotlin/
+build/
+**/build/
+out/
+*.apk
+*.ap_
+*.aab
+*.xapk
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+local.properties
+*.log
+*.tmp
+*.swp
+.env*
+captures/
