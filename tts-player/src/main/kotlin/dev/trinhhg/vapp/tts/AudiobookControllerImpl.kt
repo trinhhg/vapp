@@ -6,7 +6,6 @@ import dev.trinhhg.vapp.tts.api.TtsEngine
 import dev.trinhhg.vapp.tts.api.TtsVoiceInfo
 import dev.trinhhg.vapp.tts.audio.AmbienceAudioMixer
 import dev.trinhhg.vapp.tts.audio.SleepTimer
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -160,16 +159,12 @@ class AudiobookControllerImpl(
 
             val st = _playbackState.value
             val result =
-                try {
-                    ttsEngine.speakParagraph(
-                        text = payload.paragraphs[paragraphIdx],
-                        voiceId = _selectedVoiceId.value,
-                        rate = st.speechRate,
-                        pitch = st.pitch,
-                    )
-                } catch (ce: CancellationException) {
-                    throw ce
-                }
+                ttsEngine.speakParagraph(
+                    text = payload.paragraphs[paragraphIdx],
+                    voiceId = _selectedVoiceId.value,
+                    rate = st.speechRate,
+                    pitch = st.pitch,
+                )
 
             if (!result.completed) {
                 if (!result.errorMessage.isNullOrBlank()) {

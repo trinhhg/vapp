@@ -158,6 +158,11 @@ class RhinoSandbox(
     fun callFunction(
         functionName: String,
         vararg args: Any?,
+    ): Result<Any?> = callFunctionArgs(functionName, args)
+
+    fun callFunctionArgs(
+        functionName: String,
+        args: Array<out Any?>,
     ): Result<Any?> =
         runCatching {
             val fn = scope[functionName, scope]

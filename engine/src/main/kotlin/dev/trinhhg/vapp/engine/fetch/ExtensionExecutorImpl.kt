@@ -247,7 +247,7 @@ class ExtensionExecutorImpl(
                         )
                     }
                     val rawResult =
-                        sandbox.callFunction("execute", *args).getOrElse { err ->
+                        sandbox.callFunctionArgs("execute", args).getOrElse { err ->
                             throw EngineException(
                                 EngineErrorCode.SCRIPT_ERROR,
                                 "execute() failed in ${ext.name}/$scriptFileName: ${err.message}",

@@ -843,15 +843,15 @@ private fun paginateParagraphs(
 ): List<PageSlice> {
     if (paragraphs.isEmpty()) return listOf(PageSlice(0, emptyList()))
     val out = ArrayList<PageSlice>()
-    var currentItems = ArrayList<String>()
+    val currentItems = ArrayList<String>()
     var currentStartIdx = 0
     var charCount = 0
 
     paragraphs.forEachIndexed { idx, p ->
         val pLen = p.length + 40
         if (currentItems.isNotEmpty() && charCount + pLen > maxCharsPerPage) {
-            out.add(PageSlice(currentStartIdx, currentItems))
-            currentItems = ArrayList()
+            out.add(PageSlice(currentStartIdx, currentItems.toList()))
+            currentItems.clear()
             currentStartIdx = idx
             charCount = 0
         }
@@ -859,7 +859,7 @@ private fun paginateParagraphs(
         charCount += pLen
     }
     if (currentItems.isNotEmpty()) {
-        out.add(PageSlice(currentStartIdx, currentItems))
+        out.add(PageSlice(currentStartIdx, currentItems.toList()))
     }
     return out
 }

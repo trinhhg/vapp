@@ -44,14 +44,15 @@ class ExtensionManager(
         if (clean.isEmpty()) return null
         val noScheme = clean.removePrefix("https://").removePrefix("http://").trimEnd('/')
         return extensions.values
-            .filter { it.enabled && it.urlRegex.isNotBlank() }
             .firstOrNull { ext ->
-                runCatching {
-                    val re = Regex(ext.urlRegex)
-                    re.matches(clean) ||
-                        re.matches(noScheme) ||
-                        Regex("(https?://)?${ext.urlRegex}").matches(clean)
-                }.getOrDefault(false)
+                ext.enabled &&
+                    ext.urlRegex.isNotBlank() &&
+                    runCatching {
+                        val re = Regex(ext.urlRegex)
+                        re.matches(clean) ||
+                            re.matches(noScheme) ||
+                            Regex("(https?://)?${ext.urlRegex}").matches(clean)
+                    }.getOrDefault(false)
             }
     }
 

@@ -27,7 +27,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Lint & Static Analysis
-        run: ./gradlew spotlessCheck detekt
+        run: ./gradlew spotlessCheck detekt || (find . -path "*/build/reports/detekt/*.txt" -exec head -n 120 {} + && exit 1)
 
       - name: Upload Detekt Reports on Failure
         if: failure()

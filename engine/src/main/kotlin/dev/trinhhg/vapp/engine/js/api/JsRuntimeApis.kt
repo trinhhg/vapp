@@ -35,7 +35,7 @@ class JsBlob private constructor(
     private val dataBase64: String,
     @JvmField val type: String,
 ) {
-    @Suppress("ktlint:standard:backing-property-naming")
+    @Suppress("ktlint:standard:backing-property-naming", "VariableNaming")
     @JvmField
     val _isBlob: Boolean = true
 
